@@ -1,0 +1,41 @@
+{
+  "name": "automation-platform",
+  "version": "1.0.0",
+  "type": "module",
+  "description": "Multi-automation platform for managing various business workflows",
+  "scripts": {
+    "dev": "tsx watch src/app.ts",
+    "build": "tsc",
+    "start": "node dist/app.js",
+    "deploy": "vercel --prod",
+    "test": "node --test"
+  },
+  "keywords": [
+    "automation",
+    "workflow",
+    "notion",
+    "slack",
+    "webhooks"
+  ],
+  "author": "",
+  "license": "MIT",
+  "dependencies": {
+    "hono": "^4.0.0",
+    "@notionhq/client": "^2.2.14",
+    "@slack/web-api": "^6.11.2",
+    "nodemailer": "^6.9.8",
+    "googleapis": "^131.0.0",
+    "@axiomhq/js": "^1.0.0",
+    "@sentry/node": "^7.99.0",
+    "p-retry": "^6.2.0",
+    "cheerio": "^1.0.0-rc.12"
+  },
+  "devDependencies": {
+    "typescript": "^5.3.3",
+    "@types/node": "^20.11.5",
+    "@types/nodemailer": "^6.4.14",
+    "tsx": "^4.7.0",
+    "@cloudflare/workers-types": "^4.20240129.0",
+    "@types/cheerio": "^0.22.35"
+  }
+}

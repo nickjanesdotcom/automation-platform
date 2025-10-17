@@ -1,0 +1,8 @@
+{
+  "message": {
+    "data": "eyJoaXN0b3J5SWQiOiAiMTIzNDU2In0=",
+    "messageId": "123456789",
+    "publishTime": "2024-01-01T00:00:00.000Z"
+  },
+  "subscription": "projects/my-project/subscriptions/gmail-push"
+}

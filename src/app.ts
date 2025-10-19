@@ -86,7 +86,7 @@ app.onError((err, c) => {
   );
 });
 
-// Start server (development)
+// Log startup info (development)
 if (config.env === 'development') {
   const port = config.port;
 
@@ -105,27 +105,6 @@ ${enabledAutomations
 ║                                                            ║
 ╚════════════════════════════════════════════════════════════╝
   `);
-
-  // Start the server
-  import('node:http').then(({ createServer }) => {
-    createServer((req, res) => {
-      app.fetch(new Request(`http://localhost:${port}${req.url}`, {
-        method: req.method,
-        headers: req.headers as any,
-        body: req.method !== 'GET' && req.method !== 'HEAD' ? req as any : undefined,
-      })).then((response) => {
-        res.writeHead(response.status, Object.fromEntries(response.headers.entries()));
-        response.body?.pipeTo(new WritableStream({
-          write(chunk) {
-            res.write(chunk);
-          },
-          close() {
-            res.end();
-          },
-        }));
-      });
-    }).listen(port);
-  });
 }
 
 export default app;

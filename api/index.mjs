@@ -2237,10 +2237,10 @@ async function createLeadInNotion(lead) {
         }
       ]
     },
-    Status: {
+    Stage: {
       status: {
         name: "Lead"
-        // Default status
+        // Default stage
       }
     }
   };

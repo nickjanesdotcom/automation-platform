@@ -100,9 +100,9 @@ export async function createLeadInNotion(lead: Lead): Promise<string> {
         },
       ],
     },
-    Status: {
+    Stage: {
       status: {
-        name: 'Lead', // Default status
+        name: 'Lead', // Default stage
       },
     },
   };

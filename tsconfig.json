@@ -3,7 +3,7 @@
     "target": "ES2022",
     "module": "ESNext",
     "lib": ["ES2022"],
-    "moduleResolution": "bundler",
+    "moduleResolution": "nodenext",
     "resolveJsonModule": true,
     "outDir": "./dist",
     "rootDir": "./src",
@@ -16,6 +16,6 @@
     "sourceMap": true,
     "types": ["node"]
   },
-  "include": ["src/**/*"],
+  "include": ["src/**/*", "api/**/*"],
   "exclude": ["node_modules", "dist", "test"]
 }

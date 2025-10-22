@@ -2,7 +2,7 @@
  * Contact/People management: Find or create contacts
  */
 
-import { createPage, findPageByProperty, updatePage } from '../../../shared/services/notion.js';
+import { createPage, findPageByProperty, updatePage, getTitlePropertyName } from '../../../shared/services/notion.js';
 import { logger } from '../../../shared/utils/logger.js';
 import { config } from '../config.js';
 
@@ -43,8 +43,11 @@ export async function findOrCreateContact(
   // Contact doesn't exist, create it
   logger.info('Creating new contact', { name, email });
 
+  // Get the title property name
+  const titleProp = await getTitlePropertyName(config.peopleDatabase);
+
   const properties: any = {
-    Name: {
+    [titleProp]: {
       title: [
         {
           text: {
@@ -83,7 +86,8 @@ async function updateContactInfo(
   const properties: any = {};
 
   if (name) {
-    properties.Name = {
+    const titleProp = await getTitlePropertyName(config.peopleDatabase);
+    properties[titleProp] = {
       title: [
         {
           text: {

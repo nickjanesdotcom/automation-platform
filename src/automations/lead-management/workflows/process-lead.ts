@@ -2,7 +2,7 @@
  * Process lead workflow: Parse email → Create Notion record → Send Slack notification
  */
 
-import { createPage } from '../../../shared/services/notion.js';
+import { createPage, getTitlePropertyName } from '../../../shared/services/notion.js';
 import { sendMessage } from '../../../shared/services/slack.js';
 import { logger } from '../../../shared/utils/logger.js';
 import { extractEmail, parseCurrency, cleanText } from '../../../shared/utils/parser.js';
@@ -87,8 +87,11 @@ export async function createLeadInNotion(lead: Lead): Promise<string> {
   );
 
   // Step 3: Create lead record
+  // Get the title property name
+  const titleProp = await getTitlePropertyName(config.notionDatabase);
+
   const properties: any = {
-    Name: {
+    [titleProp]: {
       title: [
         {
           text: {

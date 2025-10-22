@@ -1,5 +1,5 @@
 {
-  "from": "john.doe@example.com",
-  "subject": "Booking Request for Automation Services",
-  "body": "Hi,\n\nI'm interested in your automation services.\n\nName: John Doe\nEmail: john.doe@example.com\nCompany: Acme Corp\nBudget: $10,000\nMessage: We need help automating our invoice processing and customer onboarding workflows.\n\nLooking forward to connecting!\n\nBest,\nJohn"
+  "from": "Sarah Johnson <sarah@techstartup.com>",
+  "subject": "New Project Inquiry - Mobile App Development",
+  "body": "Hi, I'm Sarah Johnson from Tech Startup Inc.\n\nCompany: Tech Startup Inc\n\nProject: We need to build a mobile app for our e-commerce platform. The app should support both iOS and Android, with features including user authentication, product browsing, cart management, and payment processing.\n\nBudget: $15000\n\nTimeline: We'd like to launch in 3 months.\n\nLooking forward to discussing this opportunity with you.\n\nBest regards,\nSarah"
 }

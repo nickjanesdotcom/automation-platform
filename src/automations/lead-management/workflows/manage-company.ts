@@ -2,7 +2,7 @@
  * Company management: Find or create companies
  */
 
-import { createPage, findPageByProperty } from '../../../shared/services/notion.js';
+import { createPage, findPageByProperty, getTitlePropertyName } from '../../../shared/services/notion.js';
 import { logger } from '../../../shared/utils/logger.js';
 import { config } from '../config.js';
 
@@ -17,10 +17,13 @@ export async function findOrCreateCompany(companyName: string): Promise<string> 
 
   logger.info('Finding or creating company', { companyName });
 
+  // Get the title property name
+  const titleProp = await getTitlePropertyName(config.companiesDatabase);
+
   // Search for existing company by name
   const existingCompany = await findPageByProperty(
     config.companiesDatabase,
-    'Name',
+    titleProp,
     'title',
     companyName
   );
@@ -33,8 +36,8 @@ export async function findOrCreateCompany(companyName: string): Promise<string> 
   // Company doesn't exist, create it
   logger.info('Creating new company', { companyName });
 
-  const properties = {
-    Name: {
+  const properties: any = {
+    [titleProp]: {
       title: [
         {
           text: {
@@ -43,12 +46,18 @@ export async function findOrCreateCompany(companyName: string): Promise<string> 
         },
       ],
     },
-    Status: {
+  };
+
+  // Add Status if it exists (optional)
+  try {
+    properties.Status = {
       select: {
         name: 'Active',
       },
-    },
-  };
+    };
+  } catch (e) {
+    // Status property might not exist, that's okay
+  }
 
   const newCompany = await createPage(config.companiesDatabase, properties);
 

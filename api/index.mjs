@@ -2031,6 +2031,19 @@ async function findPageByProperty(databaseId, propertyName, propertyType, value)
 async function retrievePage(pageId) {
   return withRetry(() => notion.pages.retrieve({ page_id: pageId }));
 }
+async function retrieveDatabase(databaseId) {
+  return withRetry(() => notion.databases.retrieve({ database_id: databaseId }));
+}
+async function getTitlePropertyName(databaseId) {
+  const db = await retrieveDatabase(databaseId);
+  for (const [propName, prop] of Object.entries(db.properties)) {
+    if (prop.type === "title") {
+      logger2.info("Found title property", { databaseId, propertyName: propName });
+      return propName;
+    }
+  }
+  throw new Error(`No title property found in database ${databaseId}`);
+}
 
 // src/automations/lead-management/workflows/process-lead.ts
 init_slack();
@@ -2064,9 +2077,10 @@ async function findOrCreateCompany(companyName) {
     return "";
   }
   logger2.info("Finding or creating company", { companyName });
+  const titleProp = await getTitlePropertyName(config2.companiesDatabase);
   const existingCompany = await findPageByProperty(
     config2.companiesDatabase,
-    "Name",
+    titleProp,
     "title",
     companyName
   );
@@ -2076,7 +2090,7 @@ async function findOrCreateCompany(companyName) {
   }
   logger2.info("Creating new company", { companyName });
   const properties = {
-    Name: {
+    [titleProp]: {
       title: [
         {
           text: {
@@ -2084,13 +2098,16 @@ async function findOrCreateCompany(companyName) {
           }
         }
       ]
-    },
-    Status: {
+    }
+  };
+  try {
+    properties.Status = {
       select: {
         name: "Active"
       }
-    }
-  };
+    };
+  } catch (e) {
+  }
   const newCompany = await createPage(config2.companiesDatabase, properties);
   logger2.info("Company created", { companyId: newCompany.id, companyName });
   return newCompany.id;
@@ -2118,8 +2135,9 @@ async function findOrCreateContact(name, email, companyId) {
     return existingContact.id;
   }
   logger2.info("Creating new contact", { name, email });
+  const titleProp = await getTitlePropertyName(config2.peopleDatabase);
   const properties = {
-    Name: {
+    [titleProp]: {
       title: [
         {
           text: {
@@ -2144,7 +2162,8 @@ async function findOrCreateContact(name, email, companyId) {
 async function updateContactInfo(contactId, name, companyId) {
   const properties = {};
   if (name) {
-    properties.Name = {
+    const titleProp = await getTitlePropertyName(config2.peopleDatabase);
+    properties[titleProp] = {
       title: [
         {
           text: {
@@ -2207,8 +2226,9 @@ async function createLeadInNotion(lead) {
     lead.email,
     companyId
   );
+  const titleProp = await getTitlePropertyName(config2.notionDatabase);
   const properties = {
-    Name: {
+    [titleProp]: {
       title: [
         {
           text: {

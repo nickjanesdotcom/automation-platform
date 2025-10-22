@@ -88,6 +88,23 @@ export async function retrieveDatabase(databaseId: string) {
 }
 
 /**
+ * Get the title property name for a database
+ */
+export async function getTitlePropertyName(databaseId: string): Promise<string> {
+  const db = await retrieveDatabase(databaseId);
+
+  // Find the title property
+  for (const [propName, prop] of Object.entries(db.properties as Record<string, any>)) {
+    if (prop.type === 'title') {
+      logger.info('Found title property', { databaseId, propertyName: propName });
+      return propName;
+    }
+  }
+
+  throw new Error(`No title property found in database ${databaseId}`);
+}
+
+/**
  * Create a comment on a page
  */
 export async function createComment(pageId: string, text: string) {

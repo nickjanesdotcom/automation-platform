@@ -1901,8 +1901,10 @@ init_config();
 // src/automations/lead-management/config.ts
 var config2 = {
   notionDatabase: process.env.LEAD_NOTION_DATABASE_ID,
+  companiesDatabase: process.env.LEAD_COMPANIES_DATABASE_ID,
+  peopleDatabase: process.env.LEAD_PEOPLE_DATABASE_ID,
   slackChannel: process.env.LEAD_SLACK_CHANNEL_ID,
-  calcomLink: process.env.LEAD_CALCOM_LINK,
+  calcomLink: process.env.LEAD_CALCOM_LINK || "",
   calcomWebhookSecret: process.env.LEAD_CALCOM_WEBHOOK_SECRET || "",
   google: {
     clientId: process.env.GOOGLE_CLIENT_ID || "",
@@ -1912,10 +1914,22 @@ var config2 = {
   features: {
     minimumBudget: parseInt(process.env.LEAD_MINIMUM_BUDGET || "0"),
     autoAccept: process.env.LEAD_AUTO_ACCEPT === "true"
-  }
+  },
+  budgetRanges: [
+    "$250 - $1000",
+    "$1000 - $5000",
+    "$5000 - $20000",
+    "$20000+"
+  ]
 };
 if (!config2.notionDatabase) {
   throw new Error("LEAD_NOTION_DATABASE_ID is required");
+}
+if (!config2.companiesDatabase) {
+  throw new Error("LEAD_COMPANIES_DATABASE_ID is required");
+}
+if (!config2.peopleDatabase) {
+  throw new Error("LEAD_PEOPLE_DATABASE_ID is required");
 }
 if (!config2.slackChannel) {
   throw new Error("LEAD_SLACK_CHANNEL_ID is required");
@@ -2042,7 +2056,123 @@ function cleanText(text) {
   return text.replace(/\s+/g, " ").replace(/\n\s*\n/g, "\n").trim();
 }
 
+// src/automations/lead-management/workflows/manage-company.ts
+init_logger();
+async function findOrCreateCompany(companyName) {
+  if (!companyName || companyName.trim() === "") {
+    logger2.warn("No company name provided");
+    return "";
+  }
+  logger2.info("Finding or creating company", { companyName });
+  const existingCompany = await findPageByProperty(
+    config2.companiesDatabase,
+    "Name",
+    "title",
+    companyName
+  );
+  if (existingCompany) {
+    logger2.info("Company found", { companyId: existingCompany.id, companyName });
+    return existingCompany.id;
+  }
+  logger2.info("Creating new company", { companyName });
+  const properties = {
+    Name: {
+      title: [
+        {
+          text: {
+            content: companyName
+          }
+        }
+      ]
+    },
+    Status: {
+      select: {
+        name: "Active"
+      }
+    }
+  };
+  const newCompany = await createPage(config2.companiesDatabase, properties);
+  logger2.info("Company created", { companyId: newCompany.id, companyName });
+  return newCompany.id;
+}
+
+// src/automations/lead-management/workflows/manage-contact.ts
+init_logger();
+async function findOrCreateContact(name, email, companyId) {
+  if (!email || email.trim() === "") {
+    logger2.warn("No email provided for contact");
+    return "";
+  }
+  logger2.info("Finding or creating contact", { name, email });
+  const existingContact = await findPageByProperty(
+    config2.peopleDatabase,
+    "Email",
+    "email",
+    email
+  );
+  if (existingContact) {
+    logger2.info("Contact found", { contactId: existingContact.id, email });
+    if (name || companyId) {
+      await updateContactInfo(existingContact.id, name, companyId);
+    }
+    return existingContact.id;
+  }
+  logger2.info("Creating new contact", { name, email });
+  const properties = {
+    Name: {
+      title: [
+        {
+          text: {
+            content: name || email
+          }
+        }
+      ]
+    },
+    Email: {
+      email
+    }
+  };
+  if (companyId) {
+    properties.Company = {
+      relation: [{ id: companyId }]
+    };
+  }
+  const newContact = await createPage(config2.peopleDatabase, properties);
+  logger2.info("Contact created", { contactId: newContact.id, email });
+  return newContact.id;
+}
+async function updateContactInfo(contactId, name, companyId) {
+  const properties = {};
+  if (name) {
+    properties.Name = {
+      title: [
+        {
+          text: {
+            content: name
+          }
+        }
+      ]
+    };
+  }
+  if (companyId) {
+    properties.Company = {
+      relation: [{ id: companyId }]
+    };
+  }
+  if (Object.keys(properties).length > 0) {
+    logger2.info("Updating contact", { contactId, hasName: !!name, hasCompany: !!companyId });
+    await updatePage(contactId, properties);
+  }
+}
+
 // src/automations/lead-management/workflows/process-lead.ts
+function mapBudgetToRange(budget) {
+  if (!budget) return void 0;
+  if (budget < 1e3) return "$250 - $1000";
+  if (budget < 5e3) return "$1000 - $5000";
+  if (budget < 2e4) return "$5000 - $20000";
+  return "$20000+";
+}
 function parseBookingEmail(emailData) {
   const { from, subject, body } = emailData;
   const email = extractEmail(from) || "";
@@ -2067,11 +2197,17 @@ function parseBookingEmail(emailData) {
   };
 }
 async function createLeadInNotion(lead) {
-  logger2.info("Creating lead in Notion", { email: lead.email });
+  logger2.info("Creating lead in Notion", { email: lead.email, company: lead.company });
+  let companyId;
+  if (lead.company) {
+    companyId = await findOrCreateCompany(lead.company);
+  }
+  const contactId = await findOrCreateContact(
+    lead.name || "",
+    lead.email,
+    companyId
+  );
   const properties = {
-    Email: {
-      email: lead.email
-    },
     Name: {
       title: [
         {
@@ -2083,36 +2219,47 @@ async function createLeadInNotion(lead) {
     },
     Status: {
       select: {
-        name: lead.status || "new"
+        name: "Lead"
+        // Default status
       }
     }
   };
-  if (lead.company) {
+  if (companyId) {
     properties.Company = {
-      rich_text: [{ text: { content: lead.company } }]
+      relation: [{ id: companyId }]
+    };
+  }
+  if (contactId) {
+    properties.Contact = {
+      relation: [{ id: contactId }]
     };
   }
   if (lead.projectDescription) {
-    properties["Project Description"] = {
+    properties.Description = {
       rich_text: [{ text: { content: lead.projectDescription } }]
     };
   }
-  if (lead.budget) {
+  const budgetRange = mapBudgetToRange(lead.budget);
+  if (budgetRange) {
     properties.Budget = {
-      number: lead.budget
-    };
-  }
-  if (lead.timeline) {
-    properties.Timeline = {
-      rich_text: [{ text: { content: lead.timeline } }]
+      select: {
+        name: budgetRange
+      }
     };
   }
   const page = await createPage(config2.notionDatabase, properties);
-  logger2.info("Lead created in Notion", { pageId: page.id, email: lead.email });
+  logger2.info("Lead created in Notion", {
+    pageId: page.id,
+    email: lead.email,
+    companyId,
+    contactId,
+    budgetRange
+  });
   return page.id;
 }
 async function sendSlackNotification(lead, notionPageId) {
   logger2.info("Sending Slack notification", { email: lead.email });
+  const budgetRange = mapBudgetToRange(lead.budget);
   const blocks = [
     {
       type: "header",
@@ -2137,12 +2284,12 @@ ${lead.company || "N/A"}`
         {
           type: "mrkdwn",
           text: `*Budget:*
-${lead.budget ? `$${lead.budget.toLocaleString()}` : "N/A"}`
+${budgetRange || "N/A"}`
         },
         {
           type: "mrkdwn",
-          text: `*Timeline:*
-${lead.timeline || "N/A"}`
+          text: `*Contact:*
+${lead.name || "N/A"}`
         }
       ]
     }

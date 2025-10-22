@@ -7,7 +7,21 @@ import { sendMessage } from '../../../shared/services/slack.js';
 import { logger } from '../../../shared/utils/logger.js';
 import { extractEmail, parseCurrency, cleanText } from '../../../shared/utils/parser.js';
 import { config } from '../config.js';
+import { findOrCreateCompany } from './manage-company.js';
+import { findOrCreateContact } from './manage-contact.js';
 import type { EmailParsedData, Lead } from '../types.js';
+
+/**
+ * Map budget amount to budget range select option
+ */
+function mapBudgetToRange(budget?: number): string | undefined {
+  if (!budget) return undefined;
+
+  if (budget < 1000) return '$250 - $1000';
+  if (budget < 5000) return '$1000 - $5000';
+  if (budget < 20000) return '$5000 - $20000';
+  return '$20000+';
+}
 
 /**
  * Parse booking email to extract lead information
@@ -54,15 +68,26 @@ export function parseBookingEmail(emailData: {
 }
 
 /**
- * Create lead in Notion
+ * Create lead in Notion (with company and contact relations)
  */
 export async function createLeadInNotion(lead: Lead): Promise<string> {
-  logger.info('Creating lead in Notion', { email: lead.email });
+  logger.info('Creating lead in Notion', { email: lead.email, company: lead.company });
 
-  const properties = {
-    Email: {
-      email: lead.email,
-    },
+  // Step 1: Find or create company
+  let companyId: string | undefined;
+  if (lead.company) {
+    companyId = await findOrCreateCompany(lead.company);
+  }
+
+  // Step 2: Find or create contact
+  const contactId = await findOrCreateContact(
+    lead.name || '',
+    lead.email,
+    companyId
+  );
+
+  // Step 3: Create lead record
+  const properties: any = {
     Name: {
       title: [
         {
@@ -74,39 +99,51 @@ export async function createLeadInNotion(lead: Lead): Promise<string> {
     },
     Status: {
       select: {
-        name: lead.status || 'new',
+        name: 'Lead', // Default status
       },
     },
   };
 
-  // Add optional properties
-  if (lead.company) {
-    (properties as any).Company = {
-      rich_text: [{ text: { content: lead.company } }],
+  // Link to company (relation)
+  if (companyId) {
+    properties.Company = {
+      relation: [{ id: companyId }],
     };
   }
 
+  // Link to contact (relation)
+  if (contactId) {
+    properties.Contact = {
+      relation: [{ id: contactId }],
+    };
+  }
+
+  // Add description
   if (lead.projectDescription) {
-    (properties as any)['Project Description'] = {
+    properties.Description = {
       rich_text: [{ text: { content: lead.projectDescription } }],
     };
   }
 
-  if (lead.budget) {
-    (properties as any).Budget = {
-      number: lead.budget,
-    };
-  }
-
-  if (lead.timeline) {
-    (properties as any).Timeline = {
-      rich_text: [{ text: { content: lead.timeline } }],
+  // Map budget to select range
+  const budgetRange = mapBudgetToRange(lead.budget);
+  if (budgetRange) {
+    properties.Budget = {
+      select: {
+        name: budgetRange,
+      },
     };
   }
 
   const page = await createPage(config.notionDatabase, properties);
 
-  logger.info('Lead created in Notion', { pageId: page.id, email: lead.email });
+  logger.info('Lead created in Notion', {
+    pageId: page.id,
+    email: lead.email,
+    companyId,
+    contactId,
+    budgetRange,
+  });
 
   return page.id;
 }
@@ -119,6 +156,8 @@ export async function sendSlackNotification(
   notionPageId: string
 ): Promise<{ ts: string; channel: string }> {
   logger.info('Sending Slack notification', { email: lead.email });
+
+  const budgetRange = mapBudgetToRange(lead.budget);
 
   const blocks = [
     {
@@ -141,11 +180,11 @@ export async function sendSlackNotification(
         },
         {
           type: 'mrkdwn',
-          text: `*Budget:*\n${lead.budget ? `$${lead.budget.toLocaleString()}` : 'N/A'}`,
+          text: `*Budget:*\n${budgetRange || 'N/A'}`,
         },
         {
           type: 'mrkdwn',
-          text: `*Timeline:*\n${lead.timeline || 'N/A'}`,
+          text: `*Contact:*\n${lead.name || 'N/A'}`,
         },
       ],
     },

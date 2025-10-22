@@ -12,7 +12,7 @@ try {
     platform: 'node',
     target: 'node18',
     format: 'esm',
-    outfile: join(__dirname, 'api/dist/index.mjs'),
+    outfile: join(__dirname, 'api/index.mjs'),
     // Keep heavy dependencies external to reduce bundle size
     external: [
       '@notionhq/client',

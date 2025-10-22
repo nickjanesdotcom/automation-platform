@@ -6,10 +6,10 @@
 import { Hono } from 'hono';
 import { cors } from 'hono/cors';
 import { logger as honoLogger } from 'hono/logger';
-import { config } from './config';
-import { getEnabledAutomations } from './core/automation-registry';
-import { logger } from './shared/utils/logger';
-import { monitor } from './shared/utils/monitor';
+import { config } from './config.js';
+import { getEnabledAutomations } from './core/automation-registry.js';
+import { logger } from './shared/utils/logger.js';
+import { monitor } from './shared/utils/monitor.js';
 
 // Initialize monitoring
 monitor.initMonitoring();

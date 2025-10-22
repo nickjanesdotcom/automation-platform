@@ -1,6 +1,7 @@
 {
   "name": "automation-platform",
   "version": "1.0.0",
+  "type": "module",
   "description": "Multi-automation platform for managing various business workflows",
   "scripts": {
     "dev": "tsx watch src/app.ts",

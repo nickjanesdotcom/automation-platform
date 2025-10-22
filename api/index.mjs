@@ -2242,7 +2242,7 @@ async function createLeadInNotion(lead) {
     };
   }
   if (contactId) {
-    properties.Contact = {
+    properties.Contacts = {
       relation: [{ id: contactId }]
     };
   }

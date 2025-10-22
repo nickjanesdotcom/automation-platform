@@ -116,7 +116,7 @@ export async function createLeadInNotion(lead: Lead): Promise<string> {
 
   // Link to contact (relation)
   if (contactId) {
-    properties.Contact = {
+    properties.Contacts = {
       relation: [{ id: contactId }],
     };
   }

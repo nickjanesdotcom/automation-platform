@@ -7,7 +7,7 @@ const __dirname = dirname(__filename);
 
 try {
   await build({
-    entryPoints: [join(__dirname, 'api/index.ts')],
+    entryPoints: [join(__dirname, 'api/_entry.ts')],
     bundle: true,
     platform: 'node',
     target: 'node18',

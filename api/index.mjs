@@ -2886,7 +2886,7 @@ ${enabledAutomations.map((a) => `\u2551    \u2022 ${a.name.padEnd(50)}  \u2551`)
 }
 var app_default = app;
 
-// api/index.ts
+// api/_entry.ts
 async function handler(req, res) {
   const request = new Request(new URL(req.url || "/", `https://${req.headers.host}`), {
     method: req.method,

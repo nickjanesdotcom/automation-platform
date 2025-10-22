@@ -5,7 +5,7 @@
   "description": "Multi-automation platform for managing various business workflows",
   "scripts": {
     "dev": "tsx watch src/app.ts",
-    "build": "echo 'Build skipped - Vercel handles TypeScript compilation'",
+    "build": "node build.mjs",
     "start": "node dist/app.js",
     "deploy": "vercel --prod",
     "test": "node --test"

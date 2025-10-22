@@ -3,8 +3,8 @@
  */
 
 import type { Context } from 'hono';
-import { logger } from '../../../shared/utils/logger.js.js';
-import { monitor } from '../../../shared/utils/monitor.js.js';
+import { logger } from '../../../shared/utils/logger.js';
+import { monitor } from '../../../shared/utils/monitor.js';
 import { acceptLead, rejectLead } from '../workflows/accept-lead.js';
 import { updateSlackMessage } from '../workflows/accept-lead.js';
 import type { SlackInteractionPayload } from '../types.js';

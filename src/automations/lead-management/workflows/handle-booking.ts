@@ -2,10 +2,10 @@
  * Handle booking workflow: Update Notion → Send Slack confirmation
  */
 
-import { updatePage, findPageByProperty } from '../../../shared/services/notion.js.js';
-import { sendThreadReply } from '../../../shared/services/slack.js.js';
-import { logger } from '../../../shared/utils/logger.js.js';
-import { formatDateTime } from '../../../shared/utils/format.js.js';
+import { updatePage, findPageByProperty } from '../../../shared/services/notion.js';
+import { sendThreadReply } from '../../../shared/services/slack.js';
+import { logger } from '../../../shared/utils/logger.js';
+import { formatDateTime } from '../../../shared/utils/format.js';
 import { config } from '../config.js';
 import type { CalcomBooking } from '../types.js';
 

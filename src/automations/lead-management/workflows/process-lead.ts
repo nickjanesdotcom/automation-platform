@@ -2,10 +2,10 @@
  * Process lead workflow: Parse email → Create Notion record → Send Slack notification
  */
 
-import { createPage } from '../../../shared/services/notion.js.js';
-import { sendMessage } from '../../../shared/services/slack.js.js';
-import { logger } from '../../../shared/utils/logger.js.js';
-import { extractEmail, parseCurrency, cleanText } from '../../../shared/utils/parser.js.js';
+import { createPage } from '../../../shared/services/notion.js';
+import { sendMessage } from '../../../shared/services/slack.js';
+import { logger } from '../../../shared/utils/logger.js';
+import { extractEmail, parseCurrency, cleanText } from '../../../shared/utils/parser.js';
 import { config } from '../config.js';
 import type { EmailParsedData, Lead } from '../types.js';
 

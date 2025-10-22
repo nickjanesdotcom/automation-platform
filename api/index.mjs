@@ -2742,6 +2742,39 @@ async function handleSlackInteraction(c) {
   }
 }
 
+// src/automations/lead-management/webhooks/test.ts
+init_logger();
+async function handleTestWebhook(c) {
+  try {
+    logger2.info("Test webhook received", { automationId: "lead-management" });
+    const body = await c.req.json();
+    if (!body.from || !body.subject || !body.body) {
+      return c.json({ success: false, error: "Missing required fields: from, subject, body" }, 400);
+    }
+    const emailData = {
+      from: body.from,
+      subject: body.subject,
+      body: body.body
+    };
+    await processLead(emailData);
+    return c.json({
+      success: true,
+      message: "Test lead processed successfully"
+    });
+  } catch (error2) {
+    logger2.error("Error processing test lead", error2);
+    monitor.captureException(error2, { automationId: "lead-management" });
+    return c.json(
+      {
+        success: false,
+        error: "Failed to process test lead",
+        details: error2 instanceof Error ? error2.message : "Unknown error"
+      },
+      500
+    );
+  }
+}
+
 // src/shared/middleware/auth.ts
 init_config();
 init_logger();
@@ -2770,6 +2803,7 @@ function verifyCalcomSignature(secret) {
 function setup(app2) {
   const base = "/automations/lead-management";
   app2.post(`${base}/webhooks/gmail`, handleGmailWebhook);
+  app2.post(`${base}/webhooks/test`, handleTestWebhook);
   if (config2.calcomWebhookSecret) {
     app2.post(
       `${base}/webhooks/calcom`,

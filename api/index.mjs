@@ -2100,14 +2100,6 @@ async function findOrCreateCompany(companyName) {
       ]
     }
   };
-  try {
-    properties.Status = {
-      select: {
-        name: "Active"
-      }
-    };
-  } catch (e) {
-  }
   const newCompany = await createPage(config2.companiesDatabase, properties);
   logger2.info("Company created", { companyId: newCompany.id, companyName });
   return newCompany.id;

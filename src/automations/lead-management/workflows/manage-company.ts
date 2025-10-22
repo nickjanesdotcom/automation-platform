@@ -48,17 +48,6 @@ export async function findOrCreateCompany(companyName: string): Promise<string> 
     },
   };
 
-  // Add Status if it exists (optional)
-  try {
-    properties.Status = {
-      select: {
-        name: 'Active',
-      },
-    };
-  } catch (e) {
-    // Status property might not exist, that's okay
-  }
-
   const newCompany = await createPage(config.companiesDatabase, properties);
 
   logger.info('Company created', { companyId: newCompany.id, companyName });

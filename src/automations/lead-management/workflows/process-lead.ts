@@ -101,7 +101,7 @@ export async function createLeadInNotion(lead: Lead): Promise<string> {
       ],
     },
     Status: {
-      select: {
+      status: {
         name: 'Lead', // Default status
       },
     },

@@ -2238,7 +2238,7 @@ async function createLeadInNotion(lead) {
       ]
     },
     Status: {
-      select: {
+      status: {
         name: "Lead"
         // Default status
       }

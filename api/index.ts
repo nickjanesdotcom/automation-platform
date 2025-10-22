@@ -8,7 +8,7 @@ import app from '../src/app.js';
 export default async function handler(req: VercelRequest, res: VercelResponse) {
   const request = new Request(new URL(req.url || '/', `https://${req.headers.host}`), {
     method: req.method,
-    headers: req.headers as HeadersInit,
+    headers: req.headers as any,
     body: req.method !== 'GET' && req.method !== 'HEAD' ? JSON.stringify(req.body) : undefined,
   });
 

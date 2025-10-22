@@ -20,22 +20,23 @@
   "author": "",
   "license": "MIT",
   "dependencies": {
-    "hono": "^4.0.0",
-    "@notionhq/client": "^2.2.14",
-    "@slack/web-api": "^6.11.2",
-    "nodemailer": "^6.9.8",
-    "googleapis": "^131.0.0",
     "@axiomhq/js": "^1.0.0",
+    "@hono/node-server": "^1.19.5",
+    "@notionhq/client": "^2.2.14",
     "@sentry/node": "^7.99.0",
-    "p-retry": "^6.2.0",
-    "cheerio": "^1.0.0-rc.12"
+    "@slack/web-api": "^6.11.2",
+    "cheerio": "^1.0.0-rc.12",
+    "googleapis": "^131.0.0",
+    "hono": "^4.0.0",
+    "nodemailer": "^6.9.8",
+    "p-retry": "^6.2.0"
   },
   "devDependencies": {
-    "typescript": "^5.3.3",
+    "@cloudflare/workers-types": "^4.20240129.0",
+    "@types/cheerio": "^0.22.35",
     "@types/node": "^20.11.5",
     "@types/nodemailer": "^6.4.14",
     "tsx": "^4.7.0",
-    "@cloudflare/workers-types": "^4.20240129.0",
-    "@types/cheerio": "^0.22.35"
+    "typescript": "^5.3.3"
   }
 }

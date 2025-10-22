@@ -3,11 +3,11 @@
  */
 
 import type { Context } from 'hono';
-import { logger } from '../../../shared/utils/logger';
-import { monitor } from '../../../shared/utils/monitor';
-import { acceptLead, rejectLead } from '../workflows/accept-lead';
-import { updateSlackMessage } from '../workflows/accept-lead';
-import type { SlackInteractionPayload } from '../types';
+import { logger } from '../../../shared/utils/logger.js.js';
+import { monitor } from '../../../shared/utils/monitor.js.js';
+import { acceptLead, rejectLead } from '../workflows/accept-lead.js';
+import { updateSlackMessage } from '../workflows/accept-lead.js';
+import type { SlackInteractionPayload } from '../types.js';
 
 /**
  * Handle Slack interactive webhook

@@ -4,9 +4,9 @@
  */
 
 import { Client } from '@notionhq/client';
-import { config } from '../../config';
-import { withRetry } from '../utils/retry';
-import { logger } from '../utils/logger';
+import { config } from '../../config.js';
+import { withRetry } from '../utils/retry.js';
+import { logger } from '../utils/logger.js';
 
 const notion = new Client({ auth: config.notion.apiKey });
 

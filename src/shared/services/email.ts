@@ -3,9 +3,9 @@
  */
 
 import nodemailer from 'nodemailer';
-import { config } from '../../config';
-import { withRetry } from '../utils/retry';
-import { logger } from '../utils/logger';
+import { config } from '../../config.js';
+import { withRetry } from '../utils/retry.js';
+import { logger } from '../utils/logger.js';
 
 const transporter = nodemailer.createTransport({
   host: config.email.smtp.host,

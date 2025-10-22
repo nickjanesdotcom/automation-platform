@@ -2,11 +2,11 @@
  * Accept lead workflow: Update Notion → Send booking link email → Update Slack
  */
 
-import { updatePage, retrievePage } from '../../../shared/services/notion';
-import { sendTemplatedEmail } from '../../../shared/services/email';
-import { updateMessage } from '../../../shared/services/slack';
-import { logger } from '../../../shared/utils/logger';
-import { config } from '../config';
+import { updatePage, retrievePage } from '../../../shared/services/notion.js.js';
+import { sendTemplatedEmail } from '../../../shared/services/email.js.js';
+import { updateMessage } from '../../../shared/services/slack.js.js';
+import { logger } from '../../../shared/utils/logger.js.js';
+import { config } from '../config.js';
 
 /**
  * Update lead status in Notion

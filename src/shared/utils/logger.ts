@@ -3,8 +3,8 @@
  */
 
 import { Axiom } from '@axiomhq/js';
-import { config } from '../../config';
-import type { LogContext, LogLevel } from '../../types';
+import { config } from '../../config.js';
+import type { LogContext, LogLevel } from '../../types.js';
 
 // Initialize Axiom client
 let axiom: Axiom | null = null;

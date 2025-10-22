@@ -3,7 +3,7 @@
  */
 
 import type { Context, Next } from 'hono';
-import { logger } from '../utils/logger';
+import { logger } from '../utils/logger.js';
 
 /**
  * Validate required fields in request body

@@ -3,12 +3,12 @@
  * Each automation registers itself here.
  */
 
-import type { Automation } from './types';
+import type { Automation } from './types.js';
 
 // Import automations
-import { leadManagementAutomation } from '../automations/lead-management/index';
+import { leadManagementAutomation } from '../automations/lead-management/index.js';
 // Import other automations as you add them
-// import { invoiceAutomation } from '../automations/invoice-automation';
+// import { invoiceAutomation } from '../automations/invoice-automation.js';
 
 /**
  * Register all automations here.

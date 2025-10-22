@@ -3,9 +3,9 @@
  */
 
 import { WebClient } from '@slack/web-api';
-import { config } from '../../config';
-import { withRetry } from '../utils/retry';
-import { logger } from '../utils/logger';
+import { config } from '../../config.js';
+import { withRetry } from '../utils/retry.js';
+import { logger } from '../utils/logger.js';
 
 const slack = new WebClient(config.slack.botToken);
 

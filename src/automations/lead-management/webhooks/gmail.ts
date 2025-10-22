@@ -4,11 +4,11 @@
 
 import type { Context } from 'hono';
 import { google } from 'googleapis';
-import { logger } from '../../../shared/utils/logger';
-import { monitor } from '../../../shared/utils/monitor';
-import { processLead } from '../workflows/process-lead';
-import { config } from '../config';
-import type { EmailParsedData } from '../types';
+import { logger } from '../../../shared/utils/logger.js.js';
+import { monitor } from '../../../shared/utils/monitor.js.js';
+import { processLead } from '../workflows/process-lead.js';
+import { config } from '../config.js';
+import type { EmailParsedData } from '../types.js';
 
 /**
  * Handle Gmail push notification

@@ -3,7 +3,7 @@
  */
 
 import pRetry from 'p-retry';
-import { logger } from './logger';
+import { logger } from './logger.js';
 
 export interface RetryOptions {
   retries?: number;

@@ -3,7 +3,7 @@
  */
 
 import { google } from 'googleapis';
-import { logger } from '../utils/logger';
+import { logger } from '../utils/logger.js';
 
 /**
  * Upload a file to Google Drive

@@ -3,8 +3,8 @@
  */
 
 import * as Sentry from '@sentry/node';
-import { config } from '../../config';
-import { logger } from './logger';
+import { config } from '../../config.js';
+import { logger } from './logger.js';
 
 /**
  * Initialize Sentry

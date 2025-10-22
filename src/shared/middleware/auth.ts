@@ -4,8 +4,8 @@
 
 import type { Context, Next } from 'hono';
 import { createHmac, timingSafeEqual } from 'crypto';
-import { config } from '../../config';
-import { logger } from '../utils/logger';
+import { config } from '../../config.js';
+import { logger } from '../utils/logger.js';
 
 /**
  * Verify Slack signature

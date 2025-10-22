@@ -5,12 +5,12 @@
  */
 
 import type { Hono } from 'hono';
-import type { Automation } from '../../core/types';
-import { config } from './config';
-import { handleGmailWebhook } from './webhooks/gmail';
-import { handleCalcomWebhook } from './webhooks/calcom';
-import { handleSlackInteraction } from './webhooks/slack';
-import { verifyCalcomSignature } from '../../shared/middleware/auth';
+import type { Automation } from '../../core/types.js';
+import { config } from './config.js';
+import { handleGmailWebhook } from './webhooks/gmail.js';
+import { handleCalcomWebhook } from './webhooks/calcom.js';
+import { handleSlackInteraction } from './webhooks/slack.js';
+import { verifyCalcomSignature } from '../../shared/middleware/auth.js';
 
 /**
  * Setup function - registers all routes for this automation

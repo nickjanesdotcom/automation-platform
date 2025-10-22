@@ -3,14 +3,14 @@
  */
 
 import type { Context } from 'hono';
-import { logger } from '../../../shared/utils/logger';
-import { monitor } from '../../../shared/utils/monitor';
+import { logger } from '../../../shared/utils/logger.js.js';
+import { monitor } from '../../../shared/utils/monitor.js.js';
 import {
   handleBookingConfirmation,
   handleBookingCancellation,
   handleBookingRescheduled,
-} from '../workflows/handle-booking';
-import type { CalcomBooking } from '../types';
+} from '../workflows/handle-booking.js';
+import type { CalcomBooking } from '../types.js';
 
 /**
  * Handle Cal.com webhook

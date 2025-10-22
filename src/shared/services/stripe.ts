@@ -2,7 +2,7 @@
  * Stripe service (stub for future implementation).
  */
 
-import { logger } from '../utils/logger';
+import { logger } from '../utils/logger.js';
 
 /**
  * Create a payment intent

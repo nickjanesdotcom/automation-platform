@@ -78,3 +78,19 @@ export interface CalcomBooking {
     };
   };
 }
+
+export interface MarketplacePurchase {
+  acquisitionId: string;
+  time: number; // milliseconds since epoch
+  customerEmail: string;
+  templateName: string;
+  templateSlug: string;
+  totalPrice: number;
+  discountedPrice: number;
+  listingPrice: number;
+  couponCode: string;
+  event: 'marketplace.purchase';
+  locale: string;
+  source: string;
+  totalCustomerPayment: number;
+}

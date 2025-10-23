@@ -11,6 +11,7 @@ import { handleGmailWebhook } from './webhooks/gmail.js';
 import { handleCalcomWebhook } from './webhooks/calcom.js';
 import { handleSlackInteraction } from './webhooks/slack.js';
 import { handleTestWebhook } from './webhooks/test.js';
+import { handleNotionMarketplaceWebhook } from './webhooks/notion-marketplace.js';
 import { verifyCalcomSignature } from '../../shared/middleware/auth.js';
 
 /**
@@ -22,6 +23,7 @@ function setup(app: Hono) {
   // Webhook routes
   app.post(`${base}/webhooks/gmail`, handleGmailWebhook);
   app.post(`${base}/webhooks/test`, handleTestWebhook);
+  app.post(`${base}/webhooks/notion-marketplace`, handleNotionMarketplaceWebhook);
 
   // Cal.com webhook with signature verification
   if (config.calcomWebhookSecret) {

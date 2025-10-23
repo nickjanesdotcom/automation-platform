@@ -28,6 +28,16 @@ export const config = {
     fromName: process.env.FROM_NAME || 'Automation Platform',
   },
 
+  resend: {
+    apiKey: process.env.RESEND_API_KEY || '',
+    fromEmail: process.env.RESEND_FROM_EMAIL || '',
+  },
+
+  attio: {
+    apiKey: process.env.ATTIO_API_KEY || '',
+    marketplaceListId: process.env.ATTIO_MARKETPLACE_LIST_ID || '',
+  },
+
   observability: {
     axiom: {
       token: process.env.AXIOM_TOKEN || '',

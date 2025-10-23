@@ -143,14 +143,19 @@ export async function addToListWithAttributes(
 
   const data = {
     data: {
+      parent_object: 'people',
       parent_record_id: recordId,
-      attribute_values: {
-        template_purchased: {
-          option: attributes.templatePurchased,
-        },
-        date_purchased: {
-          timestamp: attributes.datePurchased.toISOString(),
-        },
+      entry_values: {
+        template_purchased: [
+          {
+            option: attributes.templatePurchased,
+          },
+        ],
+        date_purchased: [
+          {
+            original_timestamp: attributes.datePurchased.toISOString(),
+          },
+        ],
       },
     },
   };

@@ -107,9 +107,8 @@ export async function assertPerson(
             full_name: name,
           },
         ],
-        ...(companyId && {
-          primary_location: [{ target_record_id: companyId }],
-        }),
+        // Note: Company relation needs to be set via a specific company field
+        // which varies by Attio workspace setup. Skipping for now.
       },
     },
   };

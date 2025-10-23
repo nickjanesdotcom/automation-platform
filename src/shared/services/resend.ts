@@ -19,6 +19,11 @@ export async function sendWelcomeEmail(
 ): Promise<{ id: string }> {
   logger.info('Sending welcome email', { email, templateName });
 
+  // Validate from email is configured
+  if (!config.resend.fromEmail) {
+    throw new Error('RESEND_FROM_EMAIL environment variable is not set');
+  }
+
   const emailContent = generateWelcomeEmail(name, templateName);
 
   return withRetry(async () => {

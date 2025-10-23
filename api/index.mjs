@@ -9782,10 +9782,9 @@ async function assertPerson(name, email, companyId) {
             last_name: lastName,
             full_name: name
           }
-        ],
-        ...companyId && {
-          primary_location: [{ target_record_id: companyId }]
-        }
+        ]
+        // Note: Company relation needs to be set via a specific company field
+        // which varies by Attio workspace setup. Skipping for now.
       }
     }
   };
@@ -10404,6 +10403,9 @@ init_retry();
 var resend = new Resend(config.resend.apiKey);
 async function sendWelcomeEmail(email, name, templateName) {
   logger2.info("Sending welcome email", { email, templateName });
+  if (!config.resend.fromEmail) {
+    throw new Error("RESEND_FROM_EMAIL environment variable is not set");
+  }
   const emailContent = generateWelcomeEmail(name, templateName);
   return withRetry(async () => {
     const { data, error: error2 } = await resend.emails.send({

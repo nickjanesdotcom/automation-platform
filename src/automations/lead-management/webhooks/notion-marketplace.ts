@@ -111,19 +111,35 @@ export async function handleNotionMarketplaceWebhook(c: Context) {
 
     // Step 3: Sync to Attio
     let attioCompanyId: string | undefined;
-    let attioPersonId: string;
+    let attioPersonId: string | undefined;
+    let attioError: string | undefined;
 
     try {
+      logger.info('Starting Attio sync', {
+        hasApiKey: !!config.attio.apiKey,
+        hasListId: !!config.attio.marketplaceListId,
+        listId: config.attio.marketplaceListId,
+      });
+
       // Create/update company in Attio
       if (companyName) {
         const domain = email.split('@')[1];
+        logger.info('Creating company in Attio', { companyName, domain });
         attioCompanyId = await assertCompany(companyName, domain);
+        logger.info('Company created in Attio', { attioCompanyId });
       }
 
       // Create/update person in Attio
+      logger.info('Creating person in Attio', { name, email, attioCompanyId });
       attioPersonId = await assertPerson(name, email, attioCompanyId);
+      logger.info('Person created in Attio', { attioPersonId });
 
       // Add person to "Notion Marketplace" list with attributes
+      logger.info('Adding to Notion Marketplace list', {
+        listId: config.attio.marketplaceListId,
+        personId: attioPersonId,
+        templateName: body.templateName,
+      });
       await addToListWithAttributes(
         config.attio.marketplaceListId,
         attioPersonId,
@@ -133,27 +149,44 @@ export async function handleNotionMarketplaceWebhook(c: Context) {
         }
       );
 
-      logger.info('Synced to Attio', {
+      logger.info('Successfully synced to Attio', {
         attioPersonId,
         attioCompanyId,
         addedToList: true,
       });
-    } catch (error) {
+    } catch (error: any) {
       // Log Attio sync error but don't fail the webhook
-      logger.error('Failed to sync to Attio', { error, email });
+      attioError = error.message || String(error);
+      logger.error('Failed to sync to Attio', {
+        error: error.message,
+        stack: error.stack,
+        email,
+      });
     }
 
     // Step 4: Send welcome email via Resend
     let emailSent = false;
+    let emailError: string | undefined;
     try {
+      logger.info('Sending welcome email', {
+        hasApiKey: !!config.resend.apiKey,
+        hasFromEmail: !!config.resend.fromEmail,
+        to: email,
+      });
       await sendWelcomeEmail(email, name, body.templateName);
       emailSent = true;
-    } catch (error) {
+      logger.info('Welcome email sent successfully');
+    } catch (error: any) {
       // Log email error but don't fail the webhook
-      logger.error('Failed to send welcome email', { error, email });
+      emailError = error.message || String(error);
+      logger.error('Failed to send welcome email', {
+        error: error.message,
+        stack: error.stack,
+        email,
+      });
     }
 
-    // Return success response
+    // Return success response with debug info
     return c.json({
       success: true,
       message: 'Marketplace purchase processed successfully',
@@ -161,9 +194,16 @@ export async function handleNotionMarketplaceWebhook(c: Context) {
         acquisitionId: body.acquisitionId,
         contactId: notionContactId,
         companyId: notionCompanyId,
-        attioPersonId: attioPersonId!,
+        attioPersonId,
         attioCompanyId,
         emailSent,
+      },
+      debug: {
+        attioError,
+        emailError,
+        hasAttioApiKey: !!config.attio.apiKey,
+        hasResendApiKey: !!config.resend.apiKey,
+        attioListId: config.attio.marketplaceListId,
       },
     });
   } catch (error: any) {

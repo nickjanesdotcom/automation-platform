@@ -29,7 +29,8 @@ export async function sendWelcomeEmail(
   return withRetry(async () => {
     const { data, error } = await resend.emails.send({
       from: config.resend.fromEmail,
-      to: email,
+      to: [email],
+      ...(config.resend.replyTo && { reply_to: config.resend.replyTo }),
       subject: `Welcome! Your ${templateName} is ready`,
       html: emailContent,
     });

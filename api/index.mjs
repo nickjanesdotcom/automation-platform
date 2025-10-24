@@ -59,7 +59,8 @@ var init_config = __esm({
       },
       resend: {
         apiKey: process.env.RESEND_API_KEY || "",
-        fromEmail: process.env.RESEND_FROM_EMAIL || ""
+        fromEmail: process.env.RESEND_FROM_EMAIL || "",
+        replyTo: process.env.RESEND_REPLY_TO || ""
       },
       attio: {
         apiKey: process.env.ATTIO_API_KEY || "",
@@ -10415,7 +10416,8 @@ async function sendWelcomeEmail(email, name, templateName) {
   return withRetry(async () => {
     const { data, error: error2 } = await resend.emails.send({
       from: config.resend.fromEmail,
-      to: email,
+      to: [email],
+      ...config.resend.replyTo && { reply_to: config.resend.replyTo },
       subject: `Welcome! Your ${templateName} is ready`,
       html: emailContent
     });

@@ -186,8 +186,8 @@ export async function handleNotionMarketplaceWebhook(c: Context) {
       });
     }
 
-    // Return success response with debug info
-    return c.json({
+    // Prepare response data
+    const responseData = {
       success: true,
       message: 'Marketplace purchase processed successfully',
       data: {
@@ -205,7 +205,35 @@ export async function handleNotionMarketplaceWebhook(c: Context) {
         hasResendApiKey: !!config.resend.apiKey,
         attioListId: config.attio.marketplaceListId,
       },
-    });
+    };
+
+    // Log complete result (including any errors that occurred)
+    if (attioError || emailError) {
+      logger.warn('Marketplace purchase completed with errors', {
+        acquisitionId: body.acquisitionId,
+        email,
+        templateName: body.templateName,
+        attioError,
+        emailError,
+        emailSent,
+        attioPersonId,
+        attioCompanyId,
+        notionContactId,
+        notionCompanyId,
+      });
+    } else {
+      logger.info('Marketplace purchase completed successfully', {
+        acquisitionId: body.acquisitionId,
+        email,
+        templateName: body.templateName,
+        emailSent,
+        attioPersonId,
+        notionContactId,
+      });
+    }
+
+    // Return success response with debug info
+    return c.json(responseData);
   } catch (error: any) {
     logger.error('Failed to process marketplace purchase', {
       error: error.message,

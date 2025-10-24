@@ -28,11 +28,16 @@ function log(level: LogLevel, message: string, context: LogContext = {}) {
     ...context,
   };
 
-  // Console output (development)
+  // Console output - ALWAYS output (Vercel captures stdout)
   if (config.env === 'development') {
+    // Development: Pretty format with emojis
     const emoji =
       level === 'error' ? '❌' : level === 'warn' ? '⚠️' : level === 'debug' ? '🔍' : 'ℹ️';
     console.log(`${emoji} [${level.toUpperCase()}] ${message}`, context);
+  } else {
+    // Production: JSON format for structured logging (Vercel/Axiom)
+    const consoleMethod = level === 'error' ? console.error : level === 'warn' ? console.warn : console.log;
+    consoleMethod(JSON.stringify(logData));
   }
 
   // Send to Axiom (if configured)

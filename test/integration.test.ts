@@ -2,11 +2,12 @@
  * Basic integration tests for the automation platform.
  */
 
-import { describe, it, expect } from '@jest/globals';
+import { describe, it } from 'node:test';
+import assert from 'node:assert';
 
 describe('Automation Platform', () => {
   it('should have tests', () => {
-    expect(true).toBe(true);
+    assert.strictEqual(true, true);
   });
 
   // TODO: Add real integration tests

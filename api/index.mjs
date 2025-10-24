@@ -99,6 +99,9 @@ function log2(level, message, context = {}) {
   if (config.env === "development") {
     const emoji = level === "error" ? "\u274C" : level === "warn" ? "\u26A0\uFE0F" : level === "debug" ? "\u{1F50D}" : "\u2139\uFE0F";
     console.log(`${emoji} [${level.toUpperCase()}] ${message}`, context);
+  } else {
+    const consoleMethod = level === "error" ? console.error : level === "warn" ? console.warn : console.log;
+    consoleMethod(JSON.stringify(logData));
   }
   if (axiom) {
     try {
@@ -10418,7 +10421,7 @@ async function sendWelcomeEmail(email, name, templateName) {
       from: config.resend.fromEmail,
       to: [email],
       ...config.resend.replyTo && { reply_to: config.resend.replyTo },
-      subject: `Welcome! Your ${templateName} is ready`,
+      subject: `Your ${templateName} template is ready`,
       html: emailContent
     });
     if (error2) {
@@ -10428,8 +10431,24 @@ async function sendWelcomeEmail(email, name, templateName) {
     return { id: data.id };
   });
 }
+function looksLikeRealName(name) {
+  if (/\d/.test(name)) {
+    return false;
+  }
+  const firstWord = name.split(" ")[0];
+  if (firstWord && firstWord === firstWord.toLowerCase()) {
+    return false;
+  }
+  const usernamePatterns = /^(user|player|gamer|test|demo|admin)/i;
+  if (usernamePatterns.test(name)) {
+    return false;
+  }
+  return true;
+}
 function generateWelcomeEmail(name, templateName) {
   const firstName = name.split(" ")[0] || name;
+  const usePersonalizedGreeting = looksLikeRealName(firstName);
+  const greeting = usePersonalizedGreeting ? `Thanks for your purchase, ${firstName}! \u{1F389}` : `Thanks for your purchase! \u{1F389}`;
   return `
 <!DOCTYPE html>
 <html>
@@ -10443,7 +10462,7 @@ function generateWelcomeEmail(name, templateName) {
     <tr>
       <td style="padding: 40px 40px 20px;">
         <h1 style="margin: 0 0 20px; font-size: 28px; font-weight: 600; color: #000000;">
-          Thanks for your purchase, ${firstName}! \u{1F389}
+          ${greeting}
         </h1>
         <p style="margin: 0 0 20px; font-size: 16px; line-height: 1.6; color: #333333;">
           We're excited to see you got <strong>${templateName}</strong> from the Notion Marketplace.
@@ -10456,8 +10475,10 @@ function generateWelcomeEmail(name, templateName) {
         </p>
         <p style="margin: 0; font-size: 14px; color: #666666;">
           Best regards,<br>
-          The Team
-        </p>
+          Nick Janes
+          Founder & Developer | iGeekuPlay
+          W: <a href="https://igeekuplay.com">igeekuplay.com</a>
+          </p><br>
       </td>
     </tr>
     <tr>
@@ -10595,7 +10616,7 @@ async function handleNotionMarketplaceWebhook(c) {
         email
       });
     }
-    return c.json({
+    const responseData = {
       success: true,
       message: "Marketplace purchase processed successfully",
       data: {
@@ -10613,7 +10634,31 @@ async function handleNotionMarketplaceWebhook(c) {
         hasResendApiKey: !!config.resend.apiKey,
         attioListId: config.attio.marketplaceListId
       }
-    });
+    };
+    if (attioError || emailError) {
+      logger2.warn("Marketplace purchase completed with errors", {
+        acquisitionId: body.acquisitionId,
+        email,
+        templateName: body.templateName,
+        attioError,
+        emailError,
+        emailSent,
+        attioPersonId,
+        attioCompanyId,
+        notionContactId,
+        notionCompanyId
+      });
+    } else {
+      logger2.info("Marketplace purchase completed successfully", {
+        acquisitionId: body.acquisitionId,
+        email,
+        templateName: body.templateName,
+        emailSent,
+        attioPersonId,
+        notionContactId
+      });
+    }
+    return c.json(responseData);
   } catch (error2) {
     logger2.error("Failed to process marketplace purchase", {
       error: error2.message,

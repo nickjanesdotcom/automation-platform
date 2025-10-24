@@ -8,7 +8,11 @@
     "build": "node build.mjs",
     "start": "node dist/app.js",
     "deploy": "vercel --prod",
-    "test": "node --test"
+    "test": "tsx --test test/*.test.ts src/shared/services/*.test.ts",
+    "test:unit": "tsx --test src/shared/services/*.test.ts",
+    "test:integration": "tsx --test test/*.test.ts",
+    "test:all": "npm run test:unit && npm run test:integration",
+    "validate": "bash scripts/validate.sh"
   },
   "keywords": [
     "automation",

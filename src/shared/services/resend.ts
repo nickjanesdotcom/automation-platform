@@ -31,7 +31,7 @@ export async function sendWelcomeEmail(
       from: config.resend.fromEmail,
       to: [email],
       ...(config.resend.replyTo && { reply_to: config.resend.replyTo }),
-      subject: `Welcome! Your ${templateName} is ready`,
+      subject: `Your ${templateName} template is ready`,
       html: emailContent,
     });
 
@@ -45,10 +45,41 @@ export async function sendWelcomeEmail(
 }
 
 /**
+ * Check if a name looks like a real person's name vs a username
+ */
+function looksLikeRealName(name: string): boolean {
+  // Contains numbers = likely a username (e.g., "Gamer123", "User456")
+  if (/\d/.test(name)) {
+    return false;
+  }
+
+  // Single word that's all lowercase = likely username
+  // (Real names are capitalized after extraction)
+  const firstWord = name.split(' ')[0];
+  if (firstWord && firstWord === firstWord.toLowerCase()) {
+    return false;
+  }
+
+  // Common username patterns
+  const usernamePatterns = /^(user|player|gamer|test|demo|admin)/i;
+  if (usernamePatterns.test(name)) {
+    return false;
+  }
+
+  return true;
+}
+
+/**
  * Generate HTML content for welcome email
  */
 function generateWelcomeEmail(name: string, templateName: string): string {
   const firstName = name.split(' ')[0] || name;
+  const usePersonalizedGreeting = looksLikeRealName(firstName);
+
+  // Choose greeting based on whether name looks real
+  const greeting = usePersonalizedGreeting
+    ? `Thanks for your purchase, ${firstName}! 🎉`
+    : `Thanks for your purchase! 🎉`;
 
   return `
 <!DOCTYPE html>
@@ -63,7 +94,7 @@ function generateWelcomeEmail(name: string, templateName: string): string {
     <tr>
       <td style="padding: 40px 40px 20px;">
         <h1 style="margin: 0 0 20px; font-size: 28px; font-weight: 600; color: #000000;">
-          Thanks for your purchase, ${firstName}! 🎉
+          ${greeting}
         </h1>
         <p style="margin: 0 0 20px; font-size: 16px; line-height: 1.6; color: #333333;">
           We're excited to see you got <strong>${templateName}</strong> from the Notion Marketplace.
@@ -76,8 +107,10 @@ function generateWelcomeEmail(name: string, templateName: string): string {
         </p>
         <p style="margin: 0; font-size: 14px; color: #666666;">
           Best regards,<br>
-          The Team
-        </p>
+          Nick Janes
+          Founder & Developer | iGeekuPlay
+          W: <a href="https://igeekuplay.com">igeekuplay.com</a>
+          </p><br>
       </td>
     </tr>
     <tr>

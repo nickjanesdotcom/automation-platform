@@ -153,7 +153,7 @@ export async function addToListWithAttributes(
         ],
         date_purchased: [
           {
-            original_timestamp: attributes.datePurchased.toISOString(),
+            value: attributes.datePurchased.toISOString(),
           },
         ],
       },
